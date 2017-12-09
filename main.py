@@ -66,12 +66,12 @@ for file in os.listdir(data_path):
 """
 Преобразование категореальных признаков
 """
-from sklearn.feature_extraction import DictVectorizer
+from sklearn.preprocessing import OneHotEncoder
 from scipy.sparse import hstack
 
-enc = DictVectorizer()
-X_train_cat = enc.fit_transform(file_data_dictionary['train_set_weeks'][['idFilial', 'KanalDB', 'idSubGrp']].to_dict('records'))
-X = file_data_dictionary['train_set_weeks'].drop(['idFilial', 'KanalDB', 'idSubGrp', 'value'], axis = 1)
+enc = OneHotEncoder(dtype=np.int64)
+X_train_cat = enc.fit_transform(file_data_dictionary['train_set_weeks'][['idFilial', 'KanalDB', 'idSubGrp']])
+X = file_data_dictionary['train_set_weeks']['N wk'].to_frame()
 y = file_data_dictionary['train_set_weeks']['value']
 
 X = hstack([X, X_train_cat])
@@ -80,7 +80,8 @@ from sklearn.linear_model import Ridge
 model = Ridge(alpha=1)
 model.fit(X, y)
 
-X_test = file_data_dictionary['test_set_weeks'].drop(['idFilial', 'KanalDB', 'idSubGrp'], axis = 1)
-X_test_cat = enc.transform(file_data_dictionary['test_set_weeks'][['idFilial', 'KanalDB', 'idSubGrp']].to_dict('records'))
+X_test = file_data_dictionary['test_set_weeks']['N wk'].to_frame()
+X_test_cat = enc.transform(file_data_dictionary['test_set_weeks'][['idFilial', 'KanalDB', 'idSubGrp']])
 X_test = hstack([X_test, X_test_cat])
 y_test = model.predict(X_test)
+#%%
